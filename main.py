@@ -22,7 +22,7 @@ def start_server():
     global server_process
     if server_process is None:
         server_process = subprocess.Popen(
-            ["python3", "server.py"]
+            ["python3", "server.py"],
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL
         )
@@ -31,5 +31,24 @@ def start_server():
 
 
 
+def stop_server():
+    global server_process
+    if server_process:
+        server_process.terminate()
+        server_process = None
+        print("Servidor HTTP está parado.")
         
+        
+
+def start_browser():
+    global browser_process
+    if browser_process:
+        browser_process.terminate()
     
+    
+    browser_process = subprocess.Popen(
+        ["qutebrowser", MAIN_URL],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
+    print(f"Navegador iniciado em: {MAIN_URL}" )
