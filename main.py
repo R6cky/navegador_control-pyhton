@@ -52,3 +52,66 @@ def start_browser():
         stderr=subprocess.DEVNULL
     )
     print(f"Navegador iniciado em: {MAIN_URL}" )
+    
+
+
+def monitor():
+    offline_time = 0
+    global browser_process
+    
+    while True:
+        if internet_ok():
+            offline_time = 0
+            
+            if browser_process and MAIN_URL not in get_browser_url():
+                print("Internet voltou, redirecionando...")
+                start_browser(MAIN_URL)
+                
+            stop_server()
+            
+            
+        else:
+            offline_time += CHECK_INTERVAL
+            print(f"Sem internet há {offline_time} segundos")
+            
+            if offline_time >= OFFLINE_LIMIT:
+                print("5 minutos offline. Ativando servidor  + redirecionamento.")
+                start_server()
+                start_browser(LOCAL_URL)
+                
+        time.sleep(CHECK_INTERVAL)
+
+
+
+def get_browser_url():
+    """Obtem a url aberta no qutebrowser via socket rpc (mais leve)"""
+            
+    try:
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        s.connect("/run/user/1000/qutebrowser/ipc-0")
+        s.send(b'{"command": ["tab-info"]}')
+        resp = s.recv(4096).decode()
+        s.close()
+
+        if  '"url": "' in resp:
+            return resp.split('"url": "')[1].split('"')[0]
+    except:
+        pass
+    return ""
+
+
+
+if __name__=="__main__":
+    print("Iniciando sistema...")
+    start_browser(MAIN_URL)
+    
+    
+    monitor_tread = threading.Thread(target=monitor)
+    monitor_tread.daemon = True
+    monitor_tread.start()
+    
+    
+# Mantém o script vivo
+while True:
+    time.sleep(1)
+    
