@@ -1,6 +1,6 @@
 import subprocess, time, requests,threading, psutil, socket
 
-MAIN_URL = "gpa.tolife.app"
+MAIN_URL = "https://gpa.tolife.app"
 LOCAL_URL = "http://127.0.0.1:8080"
 CHECK_INTERVAL = 10
 #OFFLINE_LIMIT = 300
@@ -40,7 +40,7 @@ def stop_server():
         
         
 
-def start_browser():
+def start_browser(url):
     global browser_process
     if browser_process:
         browser_process.terminate()
